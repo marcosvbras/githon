@@ -1,5 +1,7 @@
 import requests
 
+__version__ = '0.9'
+
 class Githon:
     """Class that controls all Github API v3 requests."""
 
