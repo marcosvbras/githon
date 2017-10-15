@@ -63,3 +63,11 @@ class InvalidTokenError(BaseError):
         """Return error description."""
         return "The access token '{}' doesn't have permission to access the requested resource or has been expired.".format(
             self.kwargs.get('access_token', None))
+
+class InvalidDateTimeFormat(BaseError):
+    """Exception raised by invalid datetime converts."""
+
+    def __str__(self):
+        """Return error description."""
+        return "The datetime '{}' doesn't have a valid format to convertion.".format(
+            self.kwargs.get('datetime', None))
