@@ -19,6 +19,22 @@ class ApiError(Exception):
         return "An unexpected error occurred on the Github API server".
 
 
+class InvalidQueryError(Exception):
+    """Exception raised by searches without query string."""
+
+    def __str__(self):
+        """Return error description."""
+        return "Github Query string not provided or is invalid."
+
+
+class ApiRateLimitErrorError(BaseError):
+    """Exception raised by GitHub API rate limit exceeded."""
+
+    def __str__(self):
+        """Return error description."""
+        return "GitHub API rate limit for your token was reached. X-RateLimit-Limit: {0} - X-RateLimit-Remaining: {1}".format(self.kwargs.get('X-RateLimit-Limit', None), self.kwargs.get('X-RateLimit-Remaining', None))
+
+
 class UserIdNotFoundError(BaseError):
     """Exception raised by searches with an unexistent User ID."""
 

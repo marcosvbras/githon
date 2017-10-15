@@ -4,8 +4,8 @@ import requests
 from utils import BaseRequest
 from exceptions import InvalidTokenError, ApiError, UsernameNotFoundError, \
     RepositoryIdNotFoundError, RepositoryNameNotFoundError, UserIdNotFoundError
+
 ROOT_API_URL = 'https://api.github.com'
-# params = {"type": "all", "per_page": "1000"}
 
 
 class Repository(BaseRequest):
@@ -14,8 +14,8 @@ class Repository(BaseRequest):
     def __init__(self, default_access_token=None):
         """Constructor.
 
-        Arguments:
-            access_token -- The default GitHub access_token
+        Args:
+            default_access_token: The default GitHub access_token
 
         If you don't provide an access_token, your number of requests will be limited to 60 requests per hour, acording with GitHub REST API v3.
         """

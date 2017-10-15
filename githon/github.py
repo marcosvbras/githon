@@ -2,9 +2,12 @@
 import requests
 from utils import BaseRequest
 from repository import Repository
-from exceptions import InvalidTokenError, UserIdNotFoundError, ApiError
+from exceptions import InvalidTokenError, UserIdNotFoundError, ApiError, \
+    InvalidQueryError
 
 __version__ = '0.9.0'
+# https://api.github.com/orgs/goVulpi
+# https://api.github.com/orgs/goVulpi/repos
 
 
 class Github(BaseRequest):
@@ -40,9 +43,7 @@ class Github(BaseRequest):
         headers = None
 
         if last_modified_date:
-            headers = {
-                'If-Modified-Since': self.convert_to_rfc1123(last_modified_date)
-            }
+            self.get_last_modified_header(last_modified_date)
 
         response = requests.get(
             url.format(
@@ -67,21 +68,20 @@ class Github(BaseRequest):
 
         Returns:
             dict: The profile emails data in json format.
+
         """
         url = "{0}/user/emails?access_token={1}"
         headers = None
 
         if last_modified_date:
-            headers = {
-                'If-Modified-Since': self.convert_to_rfc1123(last_modified_date)
-            }
+            self.get_last_modified_header(last_modified_date)
 
         response = requests.get(
             url.format(self.ROOT_API_URL, user_token), headers=headers)
 
         if response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': user_token})
-    elif response.status_code >= 500 and response.status_code <= 509:
+        elif response.status_code >= 500 and response.status_code <= 509:
             raise ApiError()
 
         return response.json()
@@ -123,3 +123,36 @@ class Github(BaseRequest):
                         break
 
         return email
+
+    def search_users(self, query, page=1, per_page=100, access_token=None):
+        """Retrieve users with a given query.
+
+        Args:
+            query: A Github query string.
+            page: Controls the pagination.
+            per_page: Controls the number os results per page.
+            access_token: GitHub OAuth2 access token.
+        Returns:
+            dict: A list of Github users that matches with query.
+
+        """
+        # /search/users?q=language:"javascript" language:"python" location:"Belo Horizonte" repos:>=1&type=Users
+        # &sort=stars&order=desc
+        # repos:>=1
+        if self.get_token(access_token):
+            access_token = self.get_token(access_token).replace("?", "&")
+
+        url = "{0}/search/users?q={1}&page={2}&per_page={3}&type=Users{4}"
+
+        response = requests.get(
+            url.format(self.ROOT_API_URL, query, page, per_page, access_token)
+        )
+
+        if response.status_code == requests.codes.unauthorized:
+            raise InvalidTokenError({'access_token': access_token})
+        elif response.status_code == requests.codes.not_found:
+            raise InvalidQueryError()
+        elif response.status_code >= 500 and response.status_code <= 509:
+            raise ApiError()
+
+        return response.json()

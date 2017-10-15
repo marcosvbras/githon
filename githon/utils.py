@@ -25,7 +25,23 @@ class BaseRequest:
         data = response.json()
         return data['resources']['core'].get("remaining")
 
-    def convert_to_rfc1123(self, datetime):
+    def get_last_modified_header(self, datetime):
+        """Return a header with If-Modified-Since attribute.
+
+        Args:
+            datetime: The string datetime to be converted.
+
+        Returns:
+            dict: The personalized header.
+
+        """
+        new_date_format = self.convert_to_rfc1123(datetime)
+
+        return {
+            'If-Modified-Since': self.convert_to_rfc1123(new_date_format)
+        }
+
+    def _convert_to_rfc1123(self, datetime):
         """Convert an datetime string to RFC1123 format.
 
         Example
