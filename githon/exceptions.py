@@ -27,7 +27,7 @@ class InvalidQueryError(Exception):
         return "Github Query string not provided or is invalid."
 
 
-class ApiRateLimitErrorError(BaseError):
+class ApiRateLimitError(BaseError):
     """Exception raised by GitHub API rate limit exceeded."""
 
     def __str__(self):

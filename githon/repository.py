@@ -31,8 +31,13 @@ class Repository(BaseRequest):
             )
         )
 
-        if response.status_code == requests.codes.unauthorized:
-            raise InvalidTokenError({'access_token': access_token})
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
+            raise InvalidTokenError({'access_token': user_token})
         elif response.status_code == requests.codes.not_found:
             raise RepositoryIdNotFoundError({'repository_id': repository_id})
         elif response.status_code >= 500 and response.status_code <= 509:
@@ -50,7 +55,12 @@ class Repository(BaseRequest):
             )
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise RepositoryNameNotFoundError({'repository_name': repository_name, 'username': username})
@@ -70,7 +80,12 @@ class Repository(BaseRequest):
             )
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise UsernameNotFoundError({'username': username})
@@ -87,7 +102,12 @@ class Repository(BaseRequest):
             url.format(self.ROOT_API_URL, user_id, self.get_token(access_token))
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise UserIdNotFoundError({'user_id': user_id})
@@ -426,7 +446,12 @@ class Repository(BaseRequest):
             )
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise RepositoryNameNotFoundError(
@@ -453,7 +478,12 @@ class Repository(BaseRequest):
             )
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise RepositoryIdNotFoundError({'repository_id': repository_id})

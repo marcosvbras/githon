@@ -3,7 +3,7 @@ import requests
 from utils import BaseRequest
 from repository import Repository
 from exceptions import InvalidTokenError, UserIdNotFoundError, ApiError, \
-    InvalidQueryError
+    InvalidQueryError, ApiRateLimitError
 
 __version__ = '0.9.0'
 # https://api.github.com/orgs/goVulpi
@@ -51,7 +51,12 @@ class Github(BaseRequest):
             ), headers=headers
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': user_token})
         elif response.status_code == requests.codes.not_found:
             raise UserIdNotFoundError({'user_id': user_id})
@@ -79,7 +84,12 @@ class Github(BaseRequest):
         response = requests.get(
             url.format(self.ROOT_API_URL, user_token), headers=headers)
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': user_token})
         elif response.status_code >= 500 and response.status_code <= 509:
             raise ApiError()
@@ -148,7 +158,12 @@ class Github(BaseRequest):
             url.format(self.ROOT_API_URL, query, page, per_page, access_token)
         )
 
-        if response.status_code == requests.codes.unauthorized:
+        remaining = requests.headers['X-RateLimit-Remaining']
+        limit = requests.headers['X-RateLimit-Limit']
+
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+        elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
             raise InvalidQueryError()

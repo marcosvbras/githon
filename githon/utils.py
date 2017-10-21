@@ -1,6 +1,7 @@
 """Module with connection utilities."""
 
 import requests
+import urllib.parse
 from dateutil.parser import parse
 from .exceptions import InvalidDateTimeFormat
 
@@ -77,3 +78,15 @@ class BaseRequest:
             return "?access_token={}".format(self.default_access_token)
         else:
             return None
+
+    def encode_parameters(self, text):
+        """Encode special characters to URL pattern.
+
+        Args:
+            text: The text to be encoded.
+
+        Returns:
+            str: The encoded text.
+
+        """
+        return urllib.parse.quote_plus(text)
