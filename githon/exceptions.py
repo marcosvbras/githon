@@ -1,3 +1,4 @@
+# coding: utf-8
 """Module that contains all personalized exceptions used in this library."""
 
 class BaseError(Exception):

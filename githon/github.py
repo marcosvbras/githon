@@ -1,3 +1,4 @@
+# coding: utf-8
 """Module that contains all GitHub data scraping logic."""
 import requests
 from .utils import BaseRequest

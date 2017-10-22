@@ -1,3 +1,4 @@
+# coding: utf-8
 """Module that contains all user repository Data Scraping logic."""
 
 import requests

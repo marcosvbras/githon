@@ -14,6 +14,7 @@ kw = dict(
     download_url = 'https://github.com/marcosvbras/githon',
     py_modules = ['githon'],
     classifiers = [
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
