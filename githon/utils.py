@@ -21,8 +21,7 @@ class BaseRequest:
 
         """
         url = "{0}/rate_limit?access_token={1}"
-        response = requests.get(
-            url.format(self.ROOT_API_URL, self.access_token))
+        response = requests.get(url.format(self.ROOT_API_URL, access_token))
         data = response.json()
         return data['resources']['core'].get("remaining")
 
@@ -36,11 +35,9 @@ class BaseRequest:
             dict: The personalized header.
 
         """
-        new_date_format = self.convert_to_rfc1123(datetime)
+        new_date_format = self._convert_to_rfc1123(datetime)
 
-        return {
-            'If-Modified-Since': self.convert_to_rfc1123(new_date_format)
-        }
+        return {'If-Modified-Since': new_date_format}
 
     def _convert_to_rfc1123(self, datetime):
         """Convert an datetime string to RFC1123 format.
@@ -63,21 +60,21 @@ class BaseRequest:
 
         return new_date_format
 
-    def get_token(self, user_token):
+    def get_token(self, access_token):
         """Choose an access_token to be used for each request.
 
         Args:
-            user_token: The priority access_token to be used.
+            access_token: The priority access_token to be used.
         Returns:
             str: The access_token if exists or None.
 
         """
-        if user_token:
-            return "?access_token={}".format(user_token)
-        elif self.access_token:
-            return "?access_token={}".format(self.default_access_token)
+        if access_token:
+            return access_token
+        elif self.default_access_token:
+            return self.default_access_token
         else:
-            return None
+            return ''
 
     def encode_parameters(self, text):
         """Encode special characters to URL pattern.

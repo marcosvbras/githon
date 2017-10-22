@@ -1,12 +1,12 @@
 """Module that contains all user repository Data Scraping logic."""
 
 import requests
-from utils import BaseRequest
-from exceptions import (InvalidTokenError, ApiError, RepositoryIdNotFoundError,
-                        RepositoryNameNotFoundError, ApiRateLimitError)
+from .utils import BaseRequest
+from .exceptions import (InvalidTokenError, RepositoryNameNotFoundError,
+                         ApiError, RepositoryIdNotFoundError, ApiRateLimitError)
 
 
-class Repository(BaseRequest):
+class RepositoryApi(BaseRequest):
     """Class that has Repository Data Scraping actions."""
 
     def __init__(self, default_access_token=None):
@@ -22,52 +22,41 @@ class Repository(BaseRequest):
     def repository_by_id(self, repository_id, access_token=None):
         """Return a repository with given repository ID."""
         url = "{0}/repositories/{1}{2}"
+        access_token = self.get_token(access_token)
+        token_arg = ''
+
+        if access_token != '':
+            token_arg = "?access_token={}".format(access_token)
 
         response = requests.get(
-            url.format(
-                self.ROOT_API_URL, repository_id, self.get_token(access_token)
-            )
-        )
+            url.format(self.ROOT_API_URL, repository_id, token_arg))
 
-        remaining = response.headers['X-RateLimit-Remaining']
+        self._check_common_status_code(response, access_token)
 
-        if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError(
-                {'X-RateLimit-Remaining': remaining,
-                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
-        elif response.status_code == requests.codes.unauthorized:
-            raise InvalidTokenError({'access_token': access_token})
-        elif response.status_code == requests.codes.not_found:
+        if response.status_code == requests.codes.not_found:
             raise RepositoryIdNotFoundError({'repository_id': repository_id})
-        elif response.status_code >= 500 and response.status_code <= 509:
-            raise ApiError()
 
         return response.json()
 
     def repository_by_name(self, username, repository_name, access_token=None):
         """Return a repository with given repository_name and username."""
         url = "{0}/repos/{1}/{2}{3}"
+        access_token = self.get_token(access_token)
+        token_arg = ''
+
+        if access_token != '':
+            token_arg = "?access_token={}".format(access_token)
 
         response = requests.get(
             url.format(
-                self.ROOT_API_URL, username, repository_name,
-                self.get_token(access_token)
-            )
+                self.ROOT_API_URL, username, repository_name, token_arg)
         )
 
-        remaining = response.headers['X-RateLimit-Remaining']
+        self._check_common_status_code(response, access_token)
 
-        if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError(
-                {'X-RateLimit-Remaining': remaining,
-                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
-        elif response.status_code == requests.codes.unauthorized:
-            raise InvalidTokenError({'access_token': access_token})
-        elif response.status_code == requests.codes.not_found:
+        if response.status_code == requests.codes.not_found:
             raise RepositoryNameNotFoundError(
                 {'repository_name': repository_name, 'username': username})
-        elif response.status_code >= 500 and response.status_code <= 509:
-            raise ApiError()
 
         return response.json()
 
@@ -142,7 +131,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "commits", access_token)
 
     def contributors_by_name(self, username, repository_name, access_token):
@@ -153,7 +142,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "contributors", access_token)
 
     def issues_by_name(self, username, repository_name, access_token):
@@ -164,7 +153,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "issues", access_token)
 
     def events_by_name(self, username, repository_name, access_token):
@@ -175,7 +164,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "events", access_token)
 
     def branches_by_name(self, username, repository_name, access_token):
@@ -186,7 +175,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "branches", access_token)
 
     def tags_by_name(self, username, repository_name, access_token):
@@ -197,7 +186,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "tags", access_token)
 
     def languages_by_name(self, username, repository_name, access_token):
@@ -208,7 +197,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "languages", access_token)
 
     def subscribers_by_name(self, username, repository_name, access_token):
@@ -219,7 +208,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "subscribers", access_token)
 
     def comments_by_name(self, username, repository_name, access_token):
@@ -230,7 +219,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "comments", access_token)
 
     def contents_by_name(self, username, repository_name, access_token):
@@ -241,7 +230,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "contents", access_token)
 
     def pulls_by_name(self, username, repository_name, access_token):
@@ -252,7 +241,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "pulls", access_token)
 
     def labels_by_name(self, username, repository_name, access_token):
@@ -263,7 +252,7 @@ class Repository(BaseRequest):
             repository_name: An existent user's repository name.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_name(
+        return self._complete_request_by_name(
             username, repository_name, "labels", access_token)
 
     def commits_by_id(self, repository_id, access_token=None):
@@ -273,7 +262,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "commits", access_token)
+        return self._complete_request_by_id(
+            repository_id, "commits", access_token)
 
     def contributors_by_id(self, repository_id, access_token=None):
         """Return repository contributors from a given username and repository ID.
@@ -282,7 +272,7 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(
+        return self._complete_request_by_id(
             repository_id, "contributors", access_token)
 
     def issues_by_id(self, repository_id, access_token=None):
@@ -292,7 +282,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "issues", access_token)
+        return self._complete_request_by_id(
+            repository_id, "issues", access_token)
 
     def events_by_id(self, repository_id, access_token=None):
         """Return repository events from a given username and repository ID.
@@ -301,7 +292,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "events", access_token)
+        return self._complete_request_by_id(
+            repository_id, "events", access_token)
 
     def branches_by_id(self, repository_id, access_token=None):
         """Return repository branches from a given username and repository ID.
@@ -310,7 +302,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "branches", access_token)
+        return self._complete_request_by_id(
+            repository_id, "branches", access_token)
 
     def tags_by_id(self, repository_id, access_token=None):
         """Return repository tags from a given username and repository ID.
@@ -319,7 +312,7 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "tags", access_token)
+        return self._complete_request_by_id(repository_id, "tags", access_token)
 
     def languages_by_id(self, repository_id, access_token=None):
         """Return languages tags from a given username and repository ID.
@@ -328,7 +321,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "languages", access_token)
+        return self._complete_request_by_id(
+            repository_id, "languages", access_token)
 
     def subscribers_by_id(self, repository_id, access_token=None):
         """Return subscribers tags from a given username and repository ID.
@@ -337,7 +331,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "subscribers", access_token)
+        return self._complete_request_by_id(
+            repository_id, "subscribers", access_token)
 
     def comments_by_id(self, repository_id, access_token=None):
         """Return comments tags from a given username and repository ID.
@@ -346,7 +341,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "comments", access_token)
+        return self._complete_request_by_id(
+            repository_id, "comments", access_token)
 
     def contents_by_id(self, repository_id, access_token=None):
         """Return contents tags from a given username and repository ID.
@@ -355,7 +351,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "contents", access_token)
+        return self._complete_request_by_id(
+            repository_id, "contents", access_token)
 
     def pulls_by_id(self, repository_id, access_token=None):
         """Return pulls tags from a given username and repository ID.
@@ -364,7 +361,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "pulls", access_token)
+        return self._complete_request_by_id(
+            repository_id, "pulls", access_token)
 
     def labels_by_id(self, repository_id, access_token=None):
         """Return labels tags from a given username and repository ID.
@@ -373,7 +371,8 @@ class Repository(BaseRequest):
             repository_id: An existent user's repository ID.
             access_token: GitHub OAuth2 access token.
         """
-        self._complete_request_by_id(repository_id, "labels", access_token)
+        return self._complete_request_by_id(
+            repository_id, "labels", access_token)
 
     def _complete_request_by_name(self, username, repository_name, complement, access_token):
         """Complements a repository data request by name.
@@ -384,27 +383,24 @@ class Repository(BaseRequest):
             access_token: GitHub OAuth2 access token.
         """
         url = "{0}/repos/{1}/{2}/{3}{4}"
+        access_token = self.get_token(access_token)
+        token_arg = ''
+
+        if access_token != '':
+            token_arg = "?access_token={}".format(access_token)
 
         response = requests.get(
             url.format(
                 self.ROOT_API_URL, username, repository_name, complement,
-                self.get_token(access_token)
+                token_arg
             )
         )
 
-        remaining = response.headers['X-RateLimit-Remaining']
+        self._check_common_status_code(response, access_token)
 
-        if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError(
-                {'X-RateLimit-Remaining': remaining,
-                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
-        elif response.status_code == requests.codes.unauthorized:
-            raise InvalidTokenError({'access_token': access_token})
-        elif response.status_code == requests.codes.not_found:
+        if response.status_code == requests.codes.not_found:
             raise RepositoryNameNotFoundError(
                 {'repository_name': repository_name, 'username': username})
-        elif response.status_code >= 500 and response.status_code <= 599:
-            raise ApiError()
 
         return response.json()
 
@@ -417,15 +413,24 @@ class Repository(BaseRequest):
             access_token: GitHub OAuth2 access token.
         """
         url = "{0}/repositories/{1}/{2}{3}"
+        access_token = self.get_token(access_token)
+        token_arg = ''
+
+        if access_token != '':
+            token_arg = "?access_token={}".format(access_token)
 
         response = requests.get(
-            url.format(
-                self.ROOT_API_URL, repository_id, complement,
-                self.get_token(access_token)
-            )
-        )
+            url.format(self.ROOT_API_URL, repository_id, complement, token_arg))
 
-        remaining = response.headers['X-RateLimit-Remaining']
+        self._check_common_status_code(response, access_token)
+
+        if response.status_code == requests.codes.not_found:
+            raise RepositoryIdNotFoundError({'repository_id': repository_id})
+
+        return response.json()
+
+    def _check_common_status_code(self, response, access_token):
+        remaining = int(response.headers['X-RateLimit-Remaining'])
 
         if response.status_code == requests.codes.forbidden and remaining == 0:
             raise ApiRateLimitError(
@@ -433,9 +438,5 @@ class Repository(BaseRequest):
                  'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
         elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
-        elif response.status_code == requests.codes.not_found:
-            raise RepositoryIdNotFoundError({'repository_id': repository_id})
         elif response.status_code >= 500 and response.status_code <= 509:
             raise ApiError()
-
-        return response.json()

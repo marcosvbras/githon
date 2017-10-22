@@ -16,7 +16,7 @@ class ApiError(Exception):
     """Exception raised when GitHub Server returns status code equals to 500."""
 
     def __str__(self):
-        return "An unexpected error occurred on the Github API server".
+        return "An unexpected error occurred on the Github API server"
 
 
 class InvalidQueryError(Exception):

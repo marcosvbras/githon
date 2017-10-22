@@ -5,7 +5,7 @@ import githon
 
 kw = dict(
     name = 'githon',
-    version = githon.__version__,
+    version = '0.9.0',
     description = 'A simple Data Scraping library for GitHub REST API v3',
     long_description = open('README', 'r').read(),
     author = 'Marcos Vinícius Brás',
