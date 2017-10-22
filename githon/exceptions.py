@@ -3,8 +3,8 @@
 class BaseError(Exception):
     """Base Exception to be inherited by all Githon exceptions.
 
-    Arguments:
-        kwargs -- Dict with attributes that will be logged in message error.
+    Args:
+        kwargs: Dict with attributes that will be logged in message error.
     """
 
     def __init__(self, kwargs):
@@ -35,22 +35,13 @@ class ApiRateLimitError(BaseError):
         return "GitHub API rate limit for your token was reached. X-RateLimit-Limit: {0} - X-RateLimit-Remaining: {1}".format(self.kwargs.get('X-RateLimit-Limit', None), self.kwargs.get('X-RateLimit-Remaining', None))
 
 
-class UserIdNotFoundError(BaseError):
-    """Exception raised by searches with an unexistent User ID."""
-
-    def __str__(self):
-        """Return error description."""
-        return "Github user with ID {} not exists.".format(
-            self.kwargs.get('user_id', None))
-
-
-class UsernameNotFoundError(BaseError):
+class UserNotFoundError(BaseError):
     """Exception raised by searches with an unexistent username."""
 
     def __str__(self):
         """Return error description."""
-        return "Github user with username {} not exists.".format(
-            self.kwargs.get('username', None))
+        return "Github user '{}' not exists.".format(
+            self.kwargs.get('user', None))
 
 
 class RepositoryIdNotFoundError(BaseError):

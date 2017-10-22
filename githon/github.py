@@ -1,19 +1,16 @@
 """Module that contains all GitHub data scraping logic."""
 import requests
 from utils import BaseRequest
-from repository import Repository
-from exceptions import InvalidTokenError, UserIdNotFoundError, ApiError, \
-    InvalidQueryError, ApiRateLimitError
+from exceptions import (InvalidTokenError, UserNotFoundError, ApiError,
+                        InvalidQueryError, ApiRateLimitError)
 
 __version__ = '0.9.0'
-# https://api.github.com/orgs/goVulpi
-# https://api.github.com/orgs/goVulpi/repos
 
 
 class Github(BaseRequest):
     """Class that controls all Github API v3 requests."""
 
-    def __init__(self, access_token=None):
+    def __init__(self, default_access_token=None):
         """Constructor.
 
         Args:
@@ -22,9 +19,9 @@ class Github(BaseRequest):
         If you don't provide an access_token, your number of requests will be limited to 60 requests per hour, acording with GitHub REST API v3.
         See more in https://developer.github.com/v3/#rate-limiting
         """
-        self.access_token = access_token
+        self.default_access_token = default_access_token
 
-    def get_user_by_id(self, user_id, user_token=None, last_modified_date=None):
+    def user_by_id(self, user_id, user_token=None, last_modified_date=None):
         """Get user by User ID.
 
         Args:
@@ -33,62 +30,51 @@ class Github(BaseRequest):
             last_modified_date: Last modified Datetime.
 
         last_modified_date arg reduces request spends.
-        See more in https://developer.github.com/v3/#conditional-requests
+        See more in https://developer.github.com/v3/#conditional-requests.
 
         Returns:
-            dict: The Github profile data in json format.
+            dict: A dictionary with Github profile data.
 
         """
-        url = "{0}/user/{1}{2}"
-        headers = None
+        return self._complete_user_request(
+            "user", user_id, user_token, last_modified_date)
 
-        if last_modified_date:
-            self.get_last_modified_header(last_modified_date)
+    def user_by_username(self, username, user_token=None, last_modified_date=None):
+        """Get user by username.
 
-        response = requests.get(
-            url.format(
-                self.ROOT_API_URL, user_id, self.get_token(user_token)
-            ), headers=headers
-        )
+        Args:
+            username: The Github profile username.
+            user_token: GitHub OAuth2 access token.
+            last_modified_date: Last modified Datetime.
 
-        remaining = requests.headers['X-RateLimit-Remaining']
-        limit = requests.headers['X-RateLimit-Limit']
+        last_modified_date arg reduces request spends.
+        See more in https://developer.github.com/v3/#conditional-requests.
 
-        if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
-        elif response.status_code == requests.codes.unauthorized:
-            raise InvalidTokenError({'access_token': user_token})
-        elif response.status_code == requests.codes.not_found:
-            raise UserIdNotFoundError({'user_id': user_id})
-        elif response.status_code >= 500 and response.status_code <= 509:
-            raise ApiError()
+        Returns:
+            dict: A dictionary with Github profile data.
 
-        return response.json()
+        """
+        return self._complete_user_request(
+            "users", username, user_token, last_modified_date)
 
-    def get_user_emails(self, user_token, last_modified_date=None):
+    def user_emails(self, user_token):
         """Retrieve a list of emails from a given user_token.
 
         Arguments:
             user_token: OAuth2 access token authorized by account owner.
 
         Returns:
-            dict: The profile emails data in json format.
+            dict: The profile emails data.
 
         """
         url = "{0}/user/emails?access_token={1}"
-        headers = None
-
-        if last_modified_date:
-            self.get_last_modified_header(last_modified_date)
-
-        response = requests.get(
-            url.format(self.ROOT_API_URL, user_token), headers=headers)
-
-        remaining = requests.headers['X-RateLimit-Remaining']
-        limit = requests.headers['X-RateLimit-Limit']
+        response = requests.get(url.format(self.ROOT_API_URL, user_token))
+        remaining = response.headers['X-RateLimit-Remaining']
 
         if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+            raise ApiRateLimitError(
+                {'X-RateLimit-Remaining': remaining,
+                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
         elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': user_token})
         elif response.status_code >= 500 and response.status_code <= 509:
@@ -96,43 +82,193 @@ class Github(BaseRequest):
 
         return response.json()
 
-    def retrieve_private_github_email(self, user_id, access_token=None, last_modified_date=None):
-        """Retrieve private email based in user commits.
+    def followers_by_id(self, user_id, user_token):
+        """Return followers from a given User ID.
 
         Args:
-            user_id: The Github profile ID.
+            user_id: Github User ID.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's followers data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "followers", user_token)
+
+    def followers_by_username(self, username, user_token):
+        """Return followers from a given username.
+
+        Args:
+            username: Github username.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's followers data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "followers", user_token)
+
+    def following_by_id(self, user_id, user_token):
+        """Return following list from a given User ID.
+
+        Args:
+            user_id: Github User ID.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's following data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "following", user_token)
+
+    def following_by_username(self, username, user_token):
+        """Return following list from a given username.
+
+        Args:
+            user_id: Github username.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's following data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "following", user_token)
+
+    def gists_by_id(self, user_id, user_token):
+        """Return gists from a given User ID.
+
+        Args:
+            user_id: Github User ID.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's gist data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "gists", user_token)
+
+    def gists_by_username(self, username, user_token):
+        """Return gists from a given username.
+
+        Args:
+            username: Github username.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's gist data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "gists", user_token)
+
+    def repositories_by_id(self, user_id, user_token):
+        """Return repositories from a given User ID.
+
+        Args:
+            user_id: Github User ID.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's repositories data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "repos", user_token)
+
+    def repositories_by_username(self, username, user_token):
+        """Return repositories from a given username.
+
+        Args:
+            username: Github username.
+            user_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's repositories data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "repos", user_token)
+
+    def _complete_user_request(self, kind, user, user_token, last_modified_date):
+        """Complements an user data request from a given User.
+
+        Args:
+            kind: 'users' if username passed or 'user' if user id passed.
+            user: Github User ID or Username
+            user_token: GitHub OAuth2 access token.
+            last_modified_date: Last modified Datetime.
+
+        last_modified_date arg reduces request spends.
+        See more in https://developer.github.com/v3/#conditional-requests.
+
+        Returns:
+            dict: A dictionary with Github profile data.
+
+        """
+        url = "{0}/{1}/{2}{3}"
+        headers = None
+
+        if last_modified_date:
+            headers = self.get_last_modified_header(last_modified_date)
+
+        response = requests.get(
+            url.format(
+                self.ROOT_API_URL, kind, user, self.get_token(user_token)
+            ), headers=headers
+        )
+
+        self._check_status_code(response, user, user_token)
+
+        return response.json()
+
+    def _complete_resource_request(self, kind, user, complement, user_token=None):
+        """Complements an user data request from a given User.
+
+        Args:
+            kind: 'users' if username passed or 'user' if user id passed.
+            user: Github User ID or Username
+            complement: A resource to be requested.
             access_token: GitHub OAuth2 access token.
 
         Returns:
-            str: The private email or a no-reply Github email.
+            dict: A dictionary with requested data.
 
         """
-        email = None
-        keep_searching = True
-        repository = Repository(access_token)
+        url = "{0}/{1}/{2}/{3}{4}"
 
-        repository_data = [
-            i for i in repository.get_repositories_by_user_id(
-                user_id, access_token) if not i['fork']
-        ]
+        response = requests.get(url.format(
+            self.ROOT_API_URL, kind, user, complement,
+            self.get_token(user_token)))
 
-        if repository_data:
-            for repository in repository_data:
-                if not repository.fork:
-                    commits_data = repository.get_commits_by_id(
-                        repository.id, access_token)
+        self._check_status_code(response, user, user_token)
 
-                    for commit in commits_data:
-                        if 'commit' in commit and commit['author'] and commit['author'].get('login', None) == username:
-                            email = commit['commit']['author'].get(
-                                'email', None)
-                            keep_searching = False
-                            break
+        return response.json()
 
-                    if not keep_searching:
-                        break
+    def _check_status_code(self, response, user, access_token):
+        """Check status codes and raise Exceptions if necessary.
 
-        return email
+        Args:
+            response: HTTP Response object from requests library.
+            user: Github UID or Username.
+            access_token: GitHub OAuth2 access token.
+        """
+        remaining = response.headers['X-RateLimit-Remaining']
+
+        if response.status_code == requests.codes.not_found:
+            raise UserNotFoundError({'user': user})
+        if response.status_code == requests.codes.forbidden and remaining == 0:
+            raise ApiRateLimitError(
+                {'X-RateLimit-Remaining': remaining,
+                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
+        elif response.status_code == requests.codes.unauthorized:
+            raise InvalidTokenError({'access_token': access_token})
+        elif response.status_code >= 500 and response.status_code <= 509:
+            raise ApiError()
 
     def search_users(self, query, page=1, per_page=100, access_token=None):
         """Retrieve users with a given query.
@@ -146,7 +282,6 @@ class Github(BaseRequest):
             dict: A list of Github users that matches with query.
 
         """
-        # /search/users?q=language:"javascript" language:"python" location:"Belo Horizonte" repos:>=1&type=Users
         # &sort=stars&order=desc
         # repos:>=1
         if self.get_token(access_token):
@@ -158,11 +293,12 @@ class Github(BaseRequest):
             url.format(self.ROOT_API_URL, query, page, per_page, access_token)
         )
 
-        remaining = requests.headers['X-RateLimit-Remaining']
-        limit = requests.headers['X-RateLimit-Limit']
+        remaining = response.headers['X-RateLimit-Remaining']
 
         if response.status_code == requests.codes.forbidden and remaining == 0:
-            raise ApiRateLimitError({'X-RateLimit-Remaining': remaining, 'X-RateLimit-Limit': limit})
+            raise ApiRateLimitError(
+                {'X-RateLimit-Remaining': remaining,
+                 'X-RateLimit-Limit': response.headers['X-RateLimit-Limit']})
         elif response.status_code == requests.codes.unauthorized:
             raise InvalidTokenError({'access_token': access_token})
         elif response.status_code == requests.codes.not_found:
