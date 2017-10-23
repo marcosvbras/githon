@@ -13,9 +13,9 @@
 
 With this library you can:
 - Request user data through username or user ID
-- Controls request errors easily
+- Control request errors easily
 - Use Application tokens or Personal User tokens to request data
-- Reduce request rate spends
+- Reduce spending on your requisition limit
 
 ## Installation
 Run the command:
@@ -37,7 +37,7 @@ Create an object and optionally pass an access token to constructor:
 >>> gh = GithubApi('YOUR_ACCESS_TOKEN')
 ```
 
-> NOTE: If you don't provide an access_token, your number of requests will be limited to 60 requests per hour, acording with GitHub REST API v3.
+> **NOTE**: With access_token, your rate limit will be 5000 requests per hour. If you don't provide an access_token, your number of requests will be limited to 60 requests per hour, according with GitHub REST API v3 docs.
 See more in https://developer.github.com/v3/#rate-limitingUse.
 
 Sample code:
@@ -46,3 +46,17 @@ Sample code:
 >>> gh.user_by_username('marcosvbras')
 { 'blog': 'https://about.me/marcosvbras', 'followers': 7, 'following': 28, ...}
 ```
+
+## Methods
+- ```user_by_username```: Request user based in Github login.
+- ```user_by_id```: Request user based in Github User ID.
+- ```user_emails```: Retrieve a list of emails from a given access_token. Requires the user access token.
+- ```followers_by_id```: Request the user followers based in Github login.
+- ```followers_by_username```: Request the user followers based in Github ID.
+- ```following_by_id```: Request the user following based in Github ID.
+- ```following_by_username```: Request the user following based in Github login.
+- ```gists_by_id```: Request the user gists based in Github ID.
+- ```gists_by_username```: Request the user gists based in Github login.
+- ```repositories_by_id```: Request the user repositories based in Github ID.
+- ```repositories_by_username```: Request the user repositories based in Github login.
+- ```search_users```: Search users with a Github query.
