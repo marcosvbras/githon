@@ -9,7 +9,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/marcosvbras/githon.svg?style=social&label=Stars)]()
 [![Donate](https://img.shields.io/gratipay/marcosvbras.svg?style=social&label=Donate)](https://www.gratipay.com/marcosvbras)
 
-**Githon** is a Python GitHub REST API v3 Data Scraping library that try request user data make simple.
+**Githon** is a python library that provides a GitHub REST API v3 Data Scraping.
 
 With this library you can:
 - Request user data through username or user ID
@@ -25,15 +25,10 @@ pip install githon
 ```
 
 ## How to use
-Import the **GithubApi** class:
+Import the **GithubApi** class and create an object. Optionally pass an access token to constructor.
 
 ```
 >>> from githon import GithubApi
-```
-
-Create an object and optionally pass an access token to constructor:
-
-```
 >>> gh = GithubApi('YOUR_ACCESS_TOKEN')
 ```
 
@@ -60,3 +55,4 @@ Sample code:
 - ```repositories_by_id```: Request the user repositories based in Github ID.
 - ```repositories_by_username```: Request the user repositories based in Github login.
 - ```search_users```: Search users with a Github query.
+- ```get_request_limit```: Request the API Rate Limit to your token.
