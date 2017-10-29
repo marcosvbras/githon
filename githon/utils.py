@@ -2,7 +2,7 @@
 """Module with connection utilities."""
 
 import requests
-import urllib.parse
+from urllib.parse import quote_plus
 from dateutil.parser import parse
 from .exceptions import InvalidDateTimeFormat
 
@@ -25,6 +25,10 @@ class BaseRequest:
         response = requests.get(url.format(self.ROOT_API_URL, access_token))
         data = response.json()
         return data['resources']['core'].get("remaining")
+
+    def get_default_access_token(self):
+        """Return the default access token passed by constructor."""
+        return self.default_access_token
 
     def get_last_modified_header(self, datetime):
         """Return a header with If-Modified-Since attribute.
@@ -54,7 +58,7 @@ class BaseRequest:
 
         """
         try:
-            new_date_format = parse('2017-10-13T03:03:57Z').strftime(
+            new_date_format = parse(datetime).strftime(
                 '%a, %d %b %Y %H:%M:%S GMT')
         except Exception as ex:
             raise InvalidDateTimeFormat({'datetime': datetime})
@@ -87,4 +91,4 @@ class BaseRequest:
             str: The encoded text.
 
         """
-        return urllib.parse.quote_plus(text)
+        return quote_plus(text)

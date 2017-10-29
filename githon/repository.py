@@ -124,7 +124,7 @@ class RepositoryApi(BaseRequest):
 
         return data
 
-    def commits_by_name(self, username, repository_name, access_token):
+    def commits_by_name(self, username, repository_name, access_token=None):
         """Return repository commits from a given username.
 
         Arguments:
@@ -135,7 +135,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "commits", access_token)
 
-    def contributors_by_name(self, username, repository_name, access_token):
+    def contributors_by_name(self, username, repository_name, access_token=None):
         """Return repository contributors from a given username.
 
         Arguments:
@@ -146,7 +146,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "contributors", access_token)
 
-    def issues_by_name(self, username, repository_name, access_token):
+    def issues_by_name(self, username, repository_name, access_token=None):
         """Return repository issues from a given username.
 
         Args:
@@ -157,7 +157,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "issues", access_token)
 
-    def events_by_name(self, username, repository_name, access_token):
+    def events_by_name(self, username, repository_name, access_token=None):
         """Return repository events from a given username.
 
         Args:
@@ -168,7 +168,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "events", access_token)
 
-    def branches_by_name(self, username, repository_name, access_token):
+    def branches_by_name(self, username, repository_name, access_token=None):
         """Return repository branches from a given username.
 
         Args:
@@ -179,7 +179,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "branches", access_token)
 
-    def tags_by_name(self, username, repository_name, access_token):
+    def tags_by_name(self, username, repository_name, access_token=None):
         """Return repository tags from a given username.
 
         Args:
@@ -190,7 +190,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "tags", access_token)
 
-    def languages_by_name(self, username, repository_name, access_token):
+    def languages_by_name(self, username, repository_name, access_token=None):
         """Return repository languages from a given username.
 
         Args:
@@ -201,7 +201,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "languages", access_token)
 
-    def subscribers_by_name(self, username, repository_name, access_token):
+    def subscribers_by_name(self, username, repository_name, access_token=None):
         """Return repository subscribers from a given username.
 
         Args:
@@ -212,7 +212,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "subscribers", access_token)
 
-    def comments_by_name(self, username, repository_name, access_token):
+    def comments_by_name(self, username, repository_name, access_token=None):
         """Return repository comments from a given username.
 
         Args:
@@ -223,7 +223,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "comments", access_token)
 
-    def contents_by_name(self, username, repository_name, access_token):
+    def contents_by_name(self, username, repository_name, access_token=None):
         """Return repository contents from a given username.
 
         Args:
@@ -234,7 +234,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "contents", access_token)
 
-    def pulls_by_name(self, username, repository_name, access_token):
+    def pulls_by_name(self, username, repository_name, access_token=None):
         """Return repository pulls from a given username.
 
         Args:
@@ -245,7 +245,7 @@ class RepositoryApi(BaseRequest):
         return self._complete_request_by_name(
             username, repository_name, "pulls", access_token)
 
-    def labels_by_name(self, username, repository_name, access_token):
+    def labels_by_name(self, username, repository_name, access_token=None):
         """Return repository labels from a given username.
 
         Args:
