@@ -81,6 +81,62 @@ class GithubApi(BaseRequest):
 
         return response.json()
 
+    def organizations_by_id(self, user_id, access_token=None):
+        """Return organizations from a given User ID.
+
+        Args:
+            user_id: Github User ID.
+            access_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's organizations data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "orgs", access_token)
+
+    def organizations_by_username(self, username, access_token=None):
+        """Return organizations from a given username.
+
+        Args:
+            username: Github username.
+            access_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's organizations data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "orgs", access_token)
+
+    def events_by_id(self, user_id, access_token=None):
+        """Return events from a given User ID.
+
+        Args:
+            user_id: Github User ID.
+            access_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's events data.
+
+        """
+        return self._complete_resource_request(
+            "user", user_id, "events", access_token)
+
+    def events_by_username(self, username, access_token=None):
+        """Return events from a given username.
+
+        Args:
+            username: Github username.
+            access_token: GitHub OAuth2 access token.
+
+        Returns:
+            dict: A dictionary with summary user's events data.
+
+        """
+        return self._complete_resource_request(
+            "users", username, "events", access_token)
+
     def followers_by_id(self, user_id, access_token=None):
         """Return followers from a given User ID.
 

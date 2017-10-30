@@ -9,7 +9,7 @@ requirements = open('requirements.pip').read().splitlines()
 
 kw = dict(
     name = 'githon',
-    version = '0.5.7',
+    version = '0.6.0',
     description = 'A simple Data Scraping library for GitHub REST API v3',
     long_description = open('README.md', 'r').read(),
     author = 'Marcos Vinícius Brás',
