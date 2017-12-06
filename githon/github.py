@@ -336,7 +336,7 @@ class GithubApi(BaseRequest):
         elif response.status_code >= 500 and response.status_code <= 509:
             raise ApiError()
 
-    def search_users(self, query, page=1, per_page=100, access_token=None):
+    def search_users(self, parameters, access_token=None):
         """Retrieve users with a given query.
 
         Args:
@@ -355,11 +355,14 @@ class GithubApi(BaseRequest):
         if access_token != '':
             token_arg = "&access_token={}".format(access_token)
 
-        url = "{0}/search/users?q={1}&page={2}&per_page={3}&type=Users{4}"
+        url = "{0}/search/users?{1}{2}"
 
         response = requests.get(
-            url.format(self.ROOT_API_URL, self.encode_parameters(query), page,
-                       per_page, token_arg))
+            url.format(
+                self.ROOT_API_URL, self.encode_parameters(parameters),
+                token_arg
+            )
+        )
 
         remaining = int(response.headers['X-RateLimit-Remaining'])
 

@@ -91,4 +91,4 @@ class BaseRequest:
             str: The encoded text.
 
         """
-        return quote_plus(text)
+        return quote_plus(text, safe='=:&"')
